@@ -1,0 +1,1207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multiple Choice Tutor</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+            background: #f8f9fa;
+        }
+        
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .header-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 25px;
+            border-radius: 16px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        h1 {
+            text-align: center;
+            color: white;
+            margin: 0;
+            font-size: 2.5em;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            letter-spacing: 1px;
+        }
+        
+        .upload-section {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+        }
+
+        .upload-title {
+            font-size: 1.3em;
+            margin-top: 0;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .upload-subtitle {
+            margin-top: 0;
+            margin-bottom: 20px;
+            color: #666;
+            font-size: 0.95em;
+        }
+        
+        .file-input {
+            margin: 10px 0;
+            padding: 8px;
+        }
+
+        /* Layout for the three uniform options */
+        .options-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: space-between;
+        }
+
+        .option-card {
+            flex: 1 1 260px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px 15px 20px;
+            background: #fafafa;
+            text-align: left;
+        }
+
+        .option-card h3 {
+            margin-top: 0;
+            margin-bottom: 8px;
+            font-size: 1.05em;
+            color: #333;
+        }
+
+        .option-card p {
+            margin-top: 0;
+            margin-bottom: 12px;
+            font-size: 0.95em;
+            color: #555;
+        }
+
+        .option-card .small-note {
+            font-size: 0.85em;
+            color: #888;
+        }
+
+        .option-card .file-input {
+            width: 100%;
+        }
+
+        .bank-select {
+            width: 100%;
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            margin-bottom: 10px;
+            font-size: 0.95em;
+        }
+
+        /* Template section inside its card */
+        .template-section {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .template-section span {
+            font-size: 0.9em;
+            color: #555;
+        }
+
+        .info-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            font-size: 18px;
+            line-height: 32px;
+            text-align: center;
+            cursor: pointer;
+            transition: background 0.2s;
+            flex-shrink: 0;
+            padding: 0;
+            font-weight: bold;
+        }
+
+        .info-btn:hover {
+            background: #5a6268;
+        }
+
+        #templateInstructions {
+            text-align: left;
+            padding: 15px;
+            margin-top: 15px;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            background: #e9ecef;
+            line-height: 1.5;
+            font-size: 0.9em;
+        }
+
+        #templateInstructions ul {
+            padding-left: 20px;
+            margin-top: 10px;
+        }
+
+        #templateInstructions li {
+            margin-bottom: 5px;
+        }
+
+        .btn-template-download {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+            display: inline-block;
+            transition: background 0.3s;
+        }
+
+        .btn-template-download:hover {
+            background: #218838;
+        }
+        
+        .mode-selector {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+        
+        .mode-btn {
+            padding: 10px 20px;
+            border: 2px solid #3498db;
+            background: white;
+            color: #3498db;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .mode-btn.active {
+            background: #3498db;
+            color: white;
+        }
+        
+        .question-counter {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 18px;
+            color: #666;
+        }
+        
+        .question-container {
+            min-height: 400px;
+        }
+        
+        .question-stem {
+            background: #e8f4f8;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border: 2px solid transparent;
+        }
+        
+        .show-choices-btn {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-bottom: 20px;
+            transition: background 0.3s;
+        }
+        
+        .show-choices-btn:hover {
+            background: #2980b9;
+        }
+        
+        .show-choices-btn.hidden {
+            display: none;
+        }
+        
+        .question-meta {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        
+        .choices-container {
+            display: none;
+            margin-top: 20px;
+        }
+        
+        .choice {
+            padding: 15px;
+            margin: 10px 0;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .choice-content {
+            flex: 1;
+        }
+        
+        .choice:hover {
+            border-color: #3498db;
+            background: #f8f9fa;
+        }
+        
+        .choice.eliminated {
+            text-decoration: line-through;
+            opacity: 0.5;
+            background: #f8d7da;
+            border-color: #dc3545;
+        }
+        
+        .choice.selected {
+            font-weight: bold;
+            background: #d1ecf1;
+            border-color: #3498db;
+        }
+        
+        .choice.correct-answer {
+            background: #d4edda;
+            border-color: #28a745;
+            font-weight: bold;
+        }
+        
+        .choice.incorrect-selected {
+            background: #f8d7da;
+            border-color: #dc3545;
+            font-weight: bold;
+        }
+        
+        .choice-label {
+            font-weight: bold;
+            display: inline-block;
+            width: 20px;
+        }
+        
+        .rationale-btn {
+            background: #5a6d8c;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            font-size: 20px;
+            line-height: 32px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            flex-shrink: 0;
+            margin-left: 10px;
+        }
+        
+        .rationale-btn:hover {
+            background: #4a5d78;
+            transform: scale(1.1);
+        }
+        
+        .controls {
+            text-align: center;
+            margin: 30px 0;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            margin: 0 10px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: #3498db;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #2980b9;
+        }
+        
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #218838;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #545b62;
+        }
+        
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .results-info {
+            text-align: center;
+            margin: 20px 0;
+            padding: 15px;
+            background: #e8f5e8;
+            border-radius: 6px;
+            color: #155724;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .results-info .result-message {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .results-info .meta-info {
+            font-size: 0.9em;
+            color: #333;
+            margin-top: 5px;
+        }
+        
+        .error {
+            color: #dc3545;
+            background: #f8d7da;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        
+        .hidden {
+            display: none;
+        }
+
+        /* --- Modal Styles for Rationale Tutor --- */
+        #rationaleModal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 999;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        #rationaleModalContent {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            width: 90vw;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+            animation: fadeInScale 0.3s ease-out forwards;
+        }
+        
+        @keyframes fadeInScale {
+            from {
+                transform: scale(0.9);
+            }
+            to {
+                transform: scale(1);
+            }
+        }
+        
+        #closeRationaleBtn {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            line-height: 30px;
+            text-align: center;
+            font-size: 20px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        #closeRationaleBtn:hover {
+            background: #c82333;
+        }
+        
+        #rationaleText {
+            margin-top: 10px;
+            line-height: 1.8;
+            color: #333;
+        }
+
+        /* --- Modal Styles for Embed Tutor --- */
+        
+        #embedModal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        #modalContent {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            width: 75vw; 
+            height: 75vh;
+            max-width: 75vw; 
+            max-height: 75vh;
+            overflow-y: auto;
+            position: relative;
+            transform: scale(0.9);
+            animation: fadeInScale 0.3s ease-out forwards;
+            display: flex; 
+            flex-direction: column;
+        }
+
+        #closeModalBtn {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            line-height: 30px;
+            text-align: center;
+            font-size: 20px;
+            cursor: pointer;
+            transition: background 0.2s;
+            z-index: 1001;
+        }
+
+        #closeModalBtn:hover {
+            background: #c82333;
+        }
+        
+        .embed-responsive {
+            max-width: 100%;
+            flex-grow: 1;
+            overflow: hidden; 
+            padding: 10px 0; 
+            display: flex; 
+            justify-content: center;
+            align-items: center; 
+        }
+        
+        .embed-responsive iframe, 
+        .embed-responsive video {
+            display: block;
+            width: 100%; 
+            height: 100%; 
+            max-width: 100%; 
+            max-height: 100%;
+            margin: 0 auto;
+            border-radius: 6px;
+        }
+
+        .embed-responsive img {
+            display: block;
+            width: auto;             
+            height: auto;            
+            max-width: 100%;         
+            max-height: 100%;        
+            margin: 0 auto;          
+            border-radius: 6px;
+            object-fit: contain; 
+        }
+
+        .embed-icon {
+            cursor: pointer;
+            font-size: 20px;
+            margin-left: 10px;
+            transition: transform 0.2s;
+            color: #ffc107;
+        }
+        
+        .embed-icon:hover {
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header-box">
+            <h1>Multiple Choice Tutor</h1>
+        </div>
+        
+        <div class="upload-section" id="uploadSection">
+            <h2 class="upload-title">Get started with your quiz</h2>
+            <p class="upload-subtitle">Choose one of the options below to load questions.</p>
+
+            <div id="uploadError" class="error hidden"></div>
+
+            <div class="options-grid">
+                <!-- Option 1: Upload CSV -->
+                <div class="option-card">
+                    <h3>1. Upload a CSV file</h3>
+                    <p>Use a quiz file saved on your computer.</p>
+                    <input type="file" id="csvFile" class="file-input" accept=".csv" />
+                    <p class="small-note">Accepts .csv files that follow the template structure.</p>
+                </div>
+
+                <!-- Option 2: Template + instructions -->
+                <div class="option-card">
+                    <h3>2. Get the template</h3>
+                    <p>Download the CSV template and view the required columns.</p>
+                    <div class="template-section">
+                        <button class="info-btn" id="toggleTemplateInstructions" title="Show template instructions">&#x2139;</button>
+                        <span>Click the info icon to show or hide template instructions.</span>
+                    </div>
+                    <button class="btn-template-download" id="downloadTemplateBtn">Download CSV Template</button>
+                </div>
+
+                <!-- Option 3: Saved question banks -->
+                <div class="option-card">
+                    <h3>3. Use a saved question bank</h3>
+                    <p>Load a shared bank stored with this app (hosted in this GitHub repo).</p>
+                    <select id="bankSelect" class="bank-select">
+                        <option value="">Select a question bank...</option>
+                        <option value="banks/cardiac_pharm_nclex.csv">Cardiac Pharmacology – NCLEX (example)</option>
+                        <option value="banks/med_surg_basics.csv">Med-Surg Basics (example)</option>
+                    </select>
+                    <button class="btn btn-primary" id="loadBankBtn">Load Question Bank</button>
+                    <p class="small-note">Update this list and the /banks folder with your own CSV banks.</p>
+                </div>
+            </div>
+
+            <div id="templateInstructions" class="hidden">
+                <h3>CSV File Requirements</h3>
+                <p>Your CSV file requires a header row with the column names below. Only the Required Columns must have data for every question.</p>
+                
+                <h4>Required Columns (Must contain data)</h4>
+                <ul>
+                    <li><strong>id</strong>: A unique ID for the question (e.g., Q001).</li>
+                    <li><strong>stem</strong>: The question text itself.</li>
+                    <li><strong>choice_a, choice_b, choice_c, choice_d</strong>: The four answer options.</li>
+                    <li><strong>correct</strong>: The correct answer label (A, B, C, or D).</li>
+                </ul>
+
+                <h4>Optional Columns (Can be left blank)</h4>
+                <ul>
+                    <li><strong>topic</strong>: The subject or topic (e.g., Fundamentals, OB).</li>
+                    <li><strong>bloom</strong>: Bloom's taxonomy level (e.g., Remember, Analyze).</li>
+                    <li><strong>choice_a_rationale, choice_b_rationale, choice_c_rationale, choice_d_rationale</strong>: Explanations for why each choice is correct or incorrect.</li>
+                    <li><strong>embed_code</strong>: HTML embed code (e.g., for relevant YouTube, images) to show after answering.</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div id="quizSection" class="hidden">
+            <div class="mode-selector">
+                <button class="mode-btn active" id="eliminationMode">Elimination Mode</button>
+                <button class="mode-btn" id="answerMode">Answer Mode</button>
+            </div>
+            
+            <div class="question-counter" id="questionCounter"></div>
+            
+            <div class="question-container">
+                <div class="question-stem" id="questionStem">
+                    <div id="stemText"></div>
+                </div>
+                
+                <button class="show-choices-btn" id="showChoicesBtn">Show Answer Choices</button>
+                
+                <div class="choices-container" id="choicesContainer">
+                    <div class="choice" id="choiceA">
+                        <div class="choice-content">
+                            <span class="choice-label">A.</span> <span class="choice-text"></span>
+                        </div>
+                        <button class="rationale-btn" data-choice="A">?</button>
+                    </div>
+                    <div class="choice" id="choiceB">
+                        <div class="choice-content">
+                            <span class="choice-label">B.</span> <span class="choice-text"></span>
+                        </div>
+                        <button class="rationale-btn" data-choice="B">?</button>
+                    </div>
+                    <div class="choice" id="choiceC">
+                        <div class="choice-content">
+                            <span class="choice-label">C.</span> <span class="choice-text"></span>
+                        </div>
+                        <button class="rationale-btn" data-choice="C">?</button>
+                    </div>
+                    <div class="choice" id="choiceD">
+                        <div class="choice-content">
+                            <span class="choice-label">D.</span> <span class="choice-text"></span>
+                        </div>
+                        <button class="rationale-btn" data-choice="D">?</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="controls">
+                <button class="btn btn-secondary" id="prevBtn">Previous</button>
+                <button class="btn btn-secondary hidden" id="resetBtn">Reset</button>
+                <button class="btn btn-success hidden" id="submitBtn">Submit Answer</button>
+                <button class="btn btn-primary" id="nextBtn">Next</button>
+            </div>
+            
+            <div class="results-info hidden" id="resultsInfo"></div>
+        </div>
+    </div>
+
+    <div id="rationaleModal" class="hidden">
+        <div id="rationaleModalContent">
+            <button id="closeRationaleBtn" title="Close">&times;</button>
+            <h3 id="rationaleTitle">Rationale</h3>
+            <div id="rationaleText"></div>
+        </div>
+    </div>
+
+    <div id="embedModal" class="hidden">
+        <div id="modalContent">
+            <button id="closeModalBtn" title="Close Popup">&times;</button>
+            <div id="embedTarget" class="embed-responsive">
+            </div>
+            <p style="margin-top: 15px; font-size: 0.85em; color: #666; text-align: center;">Close the box to return to the quiz.</p>
+        </div>
+    </div>
+
+    <script>
+        let questions = [];
+        let currentQuestionIndex = 0;
+        let isEliminationMode = true;
+        let userAnswers = {};
+        let showingResults = false;
+
+        // DOM elements
+        const uploadSection = document.getElementById('uploadSection');
+        const quizSection = document.getElementById('quizSection');
+        const csvFileInput = document.getElementById('csvFile');
+        const uploadError = document.getElementById('uploadError');
+        const eliminationModeBtn = document.getElementById('eliminationMode');
+        const answerModeBtn = document.getElementById('answerMode');
+        const questionCounter = document.getElementById('questionCounter');
+        const questionStem = document.getElementById('questionStem');
+        const stemText = document.getElementById('stemText');
+        const showChoicesBtn = document.getElementById('showChoicesBtn');
+        const choicesContainer = document.getElementById('choicesContainer');
+        const choices = document.querySelectorAll('.choice');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const resetBtn = document.getElementById('resetBtn'); 
+        const submitBtn = document.getElementById('submitBtn');
+        const resultsInfo = document.getElementById('resultsInfo');
+
+        // New DOM elements
+        const toggleTemplateInstructionsBtn = document.getElementById('toggleTemplateInstructions');
+        const templateInstructions = document.getElementById('templateInstructions');
+        const downloadTemplateBtn = document.getElementById('downloadTemplateBtn');
+
+        const bankSelect = document.getElementById('bankSelect');
+        const loadBankBtn = document.getElementById('loadBankBtn');
+        
+        // Embed Modal elements
+        const embedModal = document.getElementById('embedModal');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        const embedTarget = document.getElementById('embedTarget');
+        
+        // Rationale Modal elements
+        const rationaleModal = document.getElementById('rationaleModal');
+        const closeRationaleBtn = document.getElementById('closeRationaleBtn');
+        const rationaleTitle = document.getElementById('rationaleTitle');
+        const rationaleText = document.getElementById('rationaleText');
+        const rationaleBtns = document.querySelectorAll('.rationale-btn');
+
+        // Event listeners
+        if (csvFileInput) {
+            csvFileInput.addEventListener('change', handleFileUpload);
+        }
+        eliminationModeBtn.addEventListener('click', () => setMode(true));
+        answerModeBtn.addEventListener('click', () => setMode(false));
+        showChoicesBtn.addEventListener('click', expandQuestion);
+        choices.forEach(choice => choice.addEventListener('click', handleChoiceClick));
+        prevBtn.addEventListener('click', () => navigateQuestion(-1));
+        nextBtn.addEventListener('click', () => navigateQuestion(1));
+        resetBtn.addEventListener('click', resetQuestionState); 
+        submitBtn.addEventListener('click', submitAnswer);
+        
+        // Embed Modal event listeners
+        closeModalBtn.addEventListener('click', hideEmbedModal);
+        embedModal.addEventListener('click', handleModalOutsideClick);
+        
+        // Rationale Modal event listeners
+        closeRationaleBtn.addEventListener('click', hideRationaleModal);
+        rationaleModal.addEventListener('click', handleRationaleModalOutsideClick);
+        rationaleBtns.forEach(btn => btn.addEventListener('click', handleRationaleClick));
+
+        // New Event Listeners
+        toggleTemplateInstructionsBtn.addEventListener('click', () => templateInstructions.classList.toggle('hidden'));
+        downloadTemplateBtn.addEventListener('click', downloadCsvTemplate);
+
+        if (loadBankBtn) {
+            loadBankBtn.addEventListener('click', loadSelectedBank);
+        }
+
+        /* Download CSV Template */
+        function downloadCsvTemplate() {
+            const csvData = [
+                "id", "topic", "bloom", "stem", "choice_a", "choice_b", "choice_c", "choice_d", "correct", "choice_a_rationale", "choice_b_rationale", "choice_c_rationale", "choice_d_rationale", "embed_code"
+            ].join(',');
+
+            const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            
+            if (navigator.msSaveBlob) {
+                navigator.msSaveBlob(blob, 'MultipleChoiceTemplate.csv');
+            } else {
+                const url = URL.createObjectURL(blob);
+                link.setAttribute('href', url);
+                link.setAttribute('download', 'MultipleChoiceTemplate.csv');
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+        }
+
+        /* Handle local file upload */
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            uploadError.classList.add('hidden');
+
+            Papa.parse(file, {
+                header: true,
+                skipEmptyLines: true,
+                dynamicTyping: false,
+                transformHeader: header => header.toLowerCase().trim(),
+                complete: function(results) {
+                    if (results.errors.length > 0) {
+                        showError('CSV parsing errors: ' + results.errors.map(e => e.message).join(', '));
+                        return;
+                    }
+                    
+                    try {
+                        questions = processQuestions(results.data);
+                        if (questions.length === 0) {
+                            showError('No valid questions found in the CSV file. Check that required fields are filled.');
+                            return;
+                        }
+                        
+                        initializeQuiz();
+                    } catch (error) {
+                        showError('Error processing questions: ' + error.message);
+                    }
+                }
+            });
+        }
+
+        /* Load a saved bank via fetch */
+        function loadSelectedBank() {
+            const path = bankSelect.value;
+            if (!path) {
+                showError('Please select a question bank to load.');
+                return;
+            }
+
+            uploadError.classList.add('hidden');
+
+            fetch(path)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Unable to load the selected question bank.');
+                    }
+                    return response.text();
+                })
+                .then(csvText => {
+                    Papa.parse(csvText, {
+                        header: true,
+                        skipEmptyLines: true,
+                        dynamicTyping: false,
+                        transformHeader: header => header.toLowerCase().trim(),
+                        complete: function(results) {
+                            if (results.errors.length > 0) {
+                                showError('CSV parsing errors: ' + results.errors.map(e => e.message).join('; '));
+                                return;
+                            }
+                            
+                            try {
+                                questions = processQuestions(results.data);
+                                if (questions.length === 0) {
+                                    showError('No valid questions found in the question bank.');
+                                    return;
+                                }
+                                
+                                initializeQuiz();
+                            } catch (error) {
+                                showError('Error processing questions: ' + error.message);
+                            }
+                        }
+                    });
+                })
+                .catch(err => {
+                    showError(err.message);
+                });
+        }
+
+        function processQuestions(data) {
+            const requiredFields = ['id', 'stem', 'choice_a', 'choice_b', 'choice_c', 'choice_d', 'correct']; 
+            const processedQuestions = [];
+
+            for (let row of data) {
+                const missingFields = requiredFields.filter(field => !row.hasOwnProperty(field) || (row[field] !== 0 && row[field] !== '0' && row[field] !== false && row[field] !== 'false' && !row[field]));
+                if (missingFields.length > 0) {
+                    console.warn(`Skipping row with missing required fields: ${missingFields.join(', ')}`);
+                    continue;
+                }
+
+                let correct = row.correct.toString().toUpperCase().trim();
+                if (['1', '2', '3', '4'].includes(correct)) {
+                    correct = ['A', 'B', 'C', 'D'][parseInt(correct) - 1];
+                }
+                
+                if (!['A', 'B', 'C', 'D'].includes(correct)) {
+                    console.warn(`Skipping row with invalid correct answer label: ${row.correct}`);
+                    continue;
+                }
+
+                processedQuestions.push({
+                    id: row.id ? row.id.trim() : '',
+                    topic: row.topic ? row.topic.trim() : '', 
+                    bloom: row.bloom ? row.bloom.trim() : '', 
+                    stem: row.stem.trim(),
+                    choices: {
+                        A: row.choice_a.trim(),
+                        B: row.choice_b.trim(),
+                        C: row.choice_c.trim(),
+                        D: row.choice_d.trim()
+                    },
+                    rationales: {
+                        A: row.choice_a_rationale ? row.choice_a_rationale.trim() : 'No rationale provided.',
+                        B: row.choice_b_rationale ? row.choice_b_rationale.trim() : 'No rationale provided.',
+                        C: row.choice_c_rationale ? row.choice_c_rationale.trim() : 'No rationale provided.',
+                        D: row.choice_d_rationale ? row.choice_d_rationale.trim() : 'No rationale provided.'
+                    },
+                    correct: correct,
+                    embed_code: row.embed_code ? row.embed_code.trim() : '' 
+                });
+            }
+
+            return processedQuestions;
+        }
+
+        function showError(message) {
+            uploadError.textContent = message;
+            uploadError.classList.remove('hidden');
+        }
+
+        function initializeQuiz() {
+            uploadSection.classList.add('hidden');
+            quizSection.classList.remove('hidden');
+            currentQuestionIndex = 0;
+            userAnswers = {};
+            showingResults = false;
+            displayQuestion();
+        }
+
+        function setMode(elimination) {
+            isEliminationMode = elimination;
+            eliminationModeBtn.classList.toggle('active', elimination);
+            answerModeBtn.classList.toggle('active', !elimination);
+            
+            choices.forEach(choice => {
+                if (elimination) {
+                    choice.style.pointerEvents = 'auto';
+                } else {
+                    if (choice.classList.contains('eliminated')) {
+                        choice.style.pointerEvents = 'none';
+                    } else {
+                        choice.style.pointerEvents = 'auto';
+                    }
+                }
+            });
+
+            if (elimination) {
+                choices.forEach(choice => choice.classList.remove('selected'));
+                hideSubmitButton();
+            }
+        }
+
+        function expandQuestion() {
+            choicesContainer.style.display = 'block';
+            showChoicesBtn.classList.add('hidden');
+        }
+
+        function displayQuestion() {
+            const question = questions[currentQuestionIndex];
+            
+            questionCounter.textContent = `Question ${currentQuestionIndex + 1} of ${questions.length}`;
+            
+            stemText.textContent = question.stem;
+            
+            choices[0].querySelector('.choice-text').textContent = question.choices.A;
+            choices[1].querySelector('.choice-text').textContent = question.choices.B;
+            choices[2].querySelector('.choice-text').textContent = question.choices.C;
+            choices[3].querySelector('.choice-text').textContent = question.choices.D;
+            
+            choicesContainer.style.display = 'none';
+            showChoicesBtn.classList.remove('hidden');
+            resetQuestionState(); 
+            
+            prevBtn.disabled = currentQuestionIndex === 0;
+            nextBtn.disabled = currentQuestionIndex === questions.length - 1;
+            
+            hideSubmitButton();
+            resultsInfo.classList.add('hidden');
+            showingResults = false;
+        }
+
+        function resetQuestionState() {
+            choices.forEach(choice => {
+                choice.classList.remove('eliminated', 'selected', 'correct-answer', 'incorrect-selected');
+                choice.style.pointerEvents = 'auto'; 
+            });
+            setMode(true);
+            hideSubmitButton();
+            resultsInfo.classList.add('hidden');
+            showingResults = false;
+        }
+
+        function handleChoiceClick(event) {
+            if (event.target.classList.contains('rationale-btn')) {
+                return;
+            }
+            
+            const clickedChoice = event.currentTarget;
+            const choiceLabel = clickedChoice.id.replace('choice', '');
+            
+            if (showingResults) return;
+            
+            if (isEliminationMode) {
+                clickedChoice.classList.toggle('eliminated');
+
+                const remainingCount = document.querySelectorAll('.choice:not(.eliminated)').length;
+                
+                if (remainingCount <= 1) {
+                    setMode(false);
+                }
+            } else {
+                choices.forEach(choice => choice.classList.remove('selected'));
+                clickedChoice.classList.add('selected');
+                userAnswers[currentQuestionIndex] = choiceLabel;
+                showSubmitButton();
+            }
+        }
+
+        function showSubmitButton() {
+            submitBtn.classList.remove('hidden');
+            resetBtn.classList.remove('hidden');
+        }
+
+        function hideSubmitButton() {
+            submitBtn.classList.add('hidden');
+            resetBtn.classList.add('hidden');
+        }
+
+        function submitAnswer() {
+            if (!userAnswers[currentQuestionIndex]) return;
+            
+            const question = questions[currentQuestionIndex];
+            const userAnswer = userAnswers[currentQuestionIndex];
+            const isCorrect = userAnswer === question.correct;
+            
+            showingResults = true;
+            
+            choices.forEach((choice, index) => {
+                const choiceLabel = ['A', 'B', 'C', 'D'][index];
+                choice.classList.remove('selected');
+                
+                if (choiceLabel === question.correct) {
+                    choice.classList.add('correct-answer');
+                }
+                
+                if (choiceLabel === userAnswer && !isCorrect) {
+                    choice.classList.add('incorrect-selected');
+                }
+            });
+            
+            resultsInfo.innerHTML = '';
+
+            const resultMessage = document.createElement('div');
+            resultMessage.classList.add('result-message');
+            resultMessage.textContent = isCorrect ? 
+                `Correct! The answer is ${question.correct}.` : 
+                `Incorrect. Your answer was ${userAnswer}, but the correct answer is ${question.correct}.`;
+            resultsInfo.appendChild(resultMessage);
+            
+            const metaInfo = [];
+            if (question.topic) metaInfo.push(`Topic: ${question.topic}`);
+            if (question.bloom) metaInfo.push(`Bloom: ${question.bloom}`);
+
+            if (metaInfo.length > 0) {
+                const metaDiv = document.createElement('div');
+                metaDiv.classList.add('meta-info');
+                metaDiv.textContent = metaInfo.join(' | ');
+                resultsInfo.appendChild(metaDiv);
+            }
+            
+            if (question.embed_code && question.embed_code.trim().length > 0) {
+                const embedContainer = document.createElement('div');
+                embedContainer.style.marginTop = '10px';
+                embedContainer.style.display = 'flex';
+                embedContainer.style.alignItems = 'center';
+
+                const embedLabel = document.createElement('span');
+                embedLabel.textContent = 'View related content:';
+                embedContainer.appendChild(embedLabel);
+
+                const starIcon = document.createElement('span');
+                starIcon.innerHTML = '&#9733;';
+                starIcon.classList.add('embed-icon');
+                starIcon.title = 'View Embedded Content';
+                
+                starIcon.addEventListener('click', () => showEmbedModal(question.embed_code));
+                embedContainer.appendChild(starIcon);
+
+                resultsInfo.appendChild(embedContainer);
+            }
+            
+            resultsInfo.classList.remove('hidden');
+            
+            hideSubmitButton();
+        }
+
+        function navigateQuestion(direction) {
+            const newIndex = currentQuestionIndex + direction;
+            if (newIndex >= 0 && newIndex < questions.length) {
+                currentQuestionIndex = newIndex;
+                displayQuestion();
+            }
+        }
+        
+        function stripFixedDimensions(htmlString) {
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = htmlString;
+            
+            const mediaElements = tempDiv.querySelectorAll('iframe, img, video');
+            
+            mediaElements.forEach(el => {
+                const tagName = el.tagName.toLowerCase();
+
+                el.removeAttribute('width');
+                el.removeAttribute('height');
+                
+                el.style.removeProperty('width');
+                el.style.removeProperty('height');
+
+                if (tagName === 'iframe' || tagName === 'video') {
+                    el.style.width = '100%';
+                    el.style.height = '100%';
+                }
+            });
+            
+            return tempDiv.innerHTML;
+        }
+
+        function showEmbedModal(embedCode) {
+            const responsiveEmbedCode = stripFixedDimensions(embedCode);
+            
+            embedTarget.innerHTML = responsiveEmbedCode; 
+            
+            embedModal.style.display = 'flex'; 
+            embedModal.classList.remove('hidden');
+        }
+
+        function hideEmbedModal() {
+            embedTarget.innerHTML = ''; 
+            embedModal.classList.add('hidden');
+            embedModal.style.display = 'none'; 
+        }
+        
+        function handleModalOutsideClick(event) {
+            if (event.target === embedModal) {
+                hideEmbedModal();
+            }
+        }
+        
+        function handleRationaleClick(event) {
+            event.stopPropagation();
+            const choice = event.target.getAttribute('data-choice');
+            const question = questions[currentQuestionIndex];
+            const rationale = question.rationales[choice];
+            
+            rationaleTitle.textContent = `Rationale for Choice ${choice}`;
+            rationaleText.textContent = rationale;
+            
+            rationaleModal.style.display = 'flex';
+            rationaleModal.classList.remove('hidden');
+        }
+        
+        function hideRationaleModal() {
+            rationaleModal.classList.add('hidden');
+            rationaleModal.style.display = 'none';
+        }
+        
+        function handleRationaleModalOutsideClick(event) {
+            if (event.target === rationaleModal) {
+                hideRationaleModal();
+            }
+        }
+    </script>
+</body>
+</html>
